@@ -1,1 +1,207 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste - Apple Juice</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .status {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        #console-log {
+            background: #000;
+            color: #0f0;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+        .log-entry {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Teste de Diagnóstico - Apple Juice</h1>
+    
+    <div id="status-container"></div>
+    
+    <h2>Console de Debug:</h2>
+    <div id="console-log"></div>
+    
+    <h2>Instruções:</h2>
+    <ol>
+        <li>Abra o Console do navegador (F12)</li>
+        <li>Veja os logs abaixo E no console do navegador</li>
+        <li>Se houver erros em vermelho, copie e envie</li>
+    </ol>
+    
+    <script>
+        // Captura console.log
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        const consoleDiv = document.getElementById('console-log');
+        const statusContainer = document.getElementById('status-container');
+        
+        function addLog(message, type = 'log') {
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.style.color = type === 'error' ? '#ff6b6b' : type === 'warn' ? '#ffa500' : '#0f0';
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            consoleDiv.appendChild(entry);
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        }
+        
+        function addStatus(message, type) {
+            const status = document.createElement('div');
+            status.className = `status ${type}`;
+            status.textContent = message;
+            statusContainer.appendChild(status);
+        }
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            addLog(args.join(' '));
+        };
+        
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            addLog(args.join(' '), 'error');
+        };
+        
+        console.warn = function(...args) {
+            originalWarn.apply(console, args);
+            addLog(args.join(' '), 'warn');
+        };
+        
+        console.log('🧪 Iniciando testes...');
+        
+        // Teste 1: Verificar arquivos
+        addStatus('✓ Arquivo teste.html carregado', 'success');
+        
+        // Teste 2: Verificar se index.html existe
+        fetch('index.html')
+            .then(response => {
+                if (response.ok) {
+                    addStatus('✓ index.html encontrado', 'success');
+                } else {
+                    addStatus('✗ index.html NÃO encontrado', 'error');
+                }
+            })
+            .catch(err => {
+                addStatus('✗ Erro ao buscar index.html: ' + err.message, 'error');
+            });
+        
+        // Teste 3: Verificar script.js
+        fetch('script.js')
+            .then(response => {
+                if (response.ok) {
+                    addStatus('✓ script.js encontrado', 'success');
+                    return response.text();
+                } else {
+                    addStatus('✗ script.js NÃO encontrado', 'error');
+                    throw new Error('script.js não encontrado');
+                }
+            })
+            .then(scriptContent => {
+                // Verifica se tem as funções principais
+                if (scriptContent.includes('function init()')) {
+                    addStatus('✓ Função init() encontrada no script.js', 'success');
+                } else {
+                    addStatus('✗ Função init() NÃO encontrada no script.js', 'error');
+                }
+                
+                if (scriptContent.includes('DOMContentLoaded')) {
+                    addStatus('✓ Event listener DOMContentLoaded encontrado', 'success');
+                } else {
+                    addStatus('✗ Event listener DOMContentLoaded NÃO encontrado', 'error');
+                }
+                
+                if (scriptContent.includes('baseProducts')) {
+                    addStatus('✓ Array de produtos encontrado', 'success');
+                } else {
+                    addStatus('✗ Array de produtos NÃO encontrado', 'error');
+                }
+            })
+            .catch(err => {
+                addStatus('✗ Erro ao analisar script.js: ' + err.message, 'error');
+            });
+        
+        // Teste 4: Verificar styles.css
+        fetch('styles.css')
+            .then(response => {
+                if (response.ok) {
+                    addStatus('✓ styles.css encontrado', 'success');
+                    return response.text();
+                } else {
+                    addStatus('✗ styles.css NÃO encontrado', 'error');
+                    throw new Error('styles.css não encontrado');
+                }
+            })
+            .then(cssContent => {
+                if (cssContent.includes('@keyframes spin')) {
+                    addStatus('✓ Animação spin encontrada no CSS', 'success');
+                } else {
+                    addStatus('✗ Animação spin NÃO encontrada no CSS', 'error');
+                }
+                
+                if (cssContent.includes('.animate-spin')) {
+                    addStatus('✓ Classe .animate-spin encontrada no CSS', 'success');
+                } else {
+                    addStatus('✗ Classe .animate-spin NÃO encontrada no CSS', 'error');
+                }
+            })
+            .catch(err => {
+                addStatus('✗ Erro ao analisar styles.css: ' + err.message, 'error');
+            });
+        
+        // Teste 5: Verificar Lucide
+        setTimeout(() => {
+            fetch('https://unpkg.com/lucide@latest/dist/umd/lucide.js')
+                .then(response => {
+                    if (response.ok) {
+                        addStatus('✓ CDN do Lucide está acessível', 'success');
+                    } else {
+                        addStatus('✗ CDN do Lucide NÃO está acessível', 'error');
+                    }
+                })
+                .catch(err => {
+                    addStatus('✗ Erro ao acessar CDN do Lucide: ' + err.message, 'error');
+                });
+        }, 1000);
+        
+        console.log('✅ Testes iniciais concluídos!');
+        console.log('📋 Verifique os resultados acima.');
+        
+        addStatus('📋 Diagnóstico completo! Veja os resultados acima e no console (F12)', 'info');
+    </script>
+</body>
+</html>
 
