@@ -468,6 +468,7 @@ function applyDynamicPromotions() {
 
 // Initialize
 function init() {
+  // Carrega as configurações e renderiza o conteúdo
   loadTheme();
   loadUser();
   initializeProducts();
@@ -479,13 +480,20 @@ function init() {
     lucide.createIcons();
   }
   
-  // Hide loading screen
+  // Remove a tela de loading com animação suave
   setTimeout(() => {
     const loadingScreen = document.getElementById('loading-screen');
     if (loadingScreen) {
-      loadingScreen.style.display = 'none';
+      // Adiciona transição suave
+      loadingScreen.style.transition = 'opacity 0.5s ease-out';
+      loadingScreen.style.opacity = '0';
+      
+      // Remove do DOM após a animação
+      setTimeout(() => {
+        loadingScreen.style.display = 'none';
+      }, 500);
     }
-  }, 1000);
+  }, 300); // Reduzido de 1000ms para 300ms para carregar mais rápido
 }
 
 function loadUser() {
@@ -2326,6 +2334,7 @@ function scrollToCategories() {
  * - Aplica promoções dinâmicas
  * - Renderiza a página inicial
  * - Inicializa os ícones
+ * - Remove a tela de loading
  */
 
 // Aguarda o HTML carregar completamente antes de executar o código

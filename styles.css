@@ -681,6 +681,21 @@ input { font-size: 1rem; font-weight: 400; line-height: 1.5; }
   }
 }
 
+/* Animação de rotação (para loading spinner) */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Classe para aplicar animação de spin */
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
 /* ============================================ */
 /* 24. BARRA DE ROLAGEM CUSTOMIZADA */
 /* ============================================ */
@@ -761,4 +776,3 @@ input { font-size: 1rem; font-weight: 400; line-height: 1.5; }
     display: none !important;
   }
 }
-
