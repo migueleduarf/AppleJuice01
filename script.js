@@ -465,6 +465,137 @@ function applyDynamicPromotions() {
   }));
 }
 
+/**
+ * Obtém informações sobre a promoção atual baseada no horário e dia
+ * 
+ * @returns {Object} Objeto com informações da promoção:
+ *   - title: Título da promoção
+ *   - description: Descrição da promoção
+ *   - badge: Badge/etiqueta da promoção
+ *   - discount: Percentual de desconto
+ *   - color: Classe de cor CSS para o banner
+ */
+function getCurrentPromoInfo() {
+  const now = new Date();
+  const hour = now.getHours();
+  const dayOfWeek = now.getDay();
+  
+  // SEXTA-FEIRA: Mega Promoção
+  if (dayOfWeek === 5) {
+    return {
+      title: '🔥 MEGA SEXTA-FEIRA!',
+      description: 'Descontos de até 50% em TODAS as categorias!',
+      badge: 'Black Friday',
+      discount: 'Até 50%',
+      color: 'bg-gradient-to-r from-red-800 to-red-900'
+    };
+  }
+  
+  // FIM DE SEMANA: Gaming em destaque
+  if (dayOfWeek === 0 || dayOfWeek === 6) {
+    return {
+      title: '🎮 WEEKEND GAMER!',
+      description: 'Promoções especiais em produtos Gaming!',
+      badge: 'Gaming Weekend',
+      discount: 'Até 40%',
+      color: 'bg-gradient-to-r from-purple-800 to-indigo-800'
+    };
+  }
+  
+  // Promoções por período do dia
+  if (hour >= 0 && hour < 6) {
+    return {
+      title: '🌙 MADRUGADA DE OFERTAS!',
+      description: 'Descontos especiais para quem não dorme!',
+      badge: 'Noite Adentro',
+      discount: 'Até 35%',
+      color: 'bg-gradient-to-r from-blue-900 to-purple-900'
+    };
+  }
+  
+  if (hour >= 6 && hour < 12) {
+    return {
+      title: '☀️ BOM DIA COM ECONOMIA!',
+      description: 'Comece o dia com ofertas em Home Office!',
+      badge: 'Manhã Produtiva',
+      discount: 'Até 30%',
+      color: 'bg-gradient-to-r from-orange-600 to-yellow-600'
+    };
+  }
+  
+  if (hour >= 12 && hour < 18) {
+    return {
+      title: '🏢 TARDE PROFISSIONAL!',
+      description: 'Equipamentos profissionais com descontos incríveis!',
+      badge: 'Profissional',
+      discount: 'Até 35%',
+      color: 'bg-gradient-to-r from-cyan-700 to-blue-700'
+    };
+  }
+  
+  // Noite (18h-23h59)
+  return {
+    title: '🌆 NOITE DE TECNOLOGIA!',
+    description: 'Acessórios e periféricos em promoção!',
+    badge: 'Boa Noite',
+    discount: 'Até 30%',
+    color: 'bg-gradient-to-r from-red-700 to-red-800'
+  };
+}
+
+/**
+ * Calcula o tempo restante até a próxima mudança de promoção
+ * 
+ * @returns {string|null} String com tempo formatado ou null
+ */
+function getTimeLeft() {
+  const now = new Date();
+  const hour = now.getHours();
+  const dayOfWeek = now.getDay();
+  
+  // Se for sexta-feira, conta até o fim do dia
+  if (dayOfWeek === 5) {
+    const midnight = new Date();
+    midnight.setHours(23, 59, 59, 999);
+    const diff = midnight - now;
+    const hoursLeft = Math.floor(diff / (1000 * 60 * 60));
+    const minutesLeft = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    return `${hoursLeft}h ${minutesLeft}m`;
+  }
+  
+  // Se for fim de semana, conta até segunda-feira
+  if (dayOfWeek === 0 || dayOfWeek === 6) {
+    const monday = new Date();
+    const daysUntilMonday = dayOfWeek === 0 ? 1 : 2;
+    monday.setDate(monday.getDate() + daysUntilMonday);
+    monday.setHours(0, 0, 0, 0);
+    const diff = monday - now;
+    const hoursLeft = Math.floor(diff / (1000 * 60 * 60));
+    return `${hoursLeft}h`;
+  }
+  
+  // Calcula tempo até a próxima faixa horária (6h, 12h, 18h, 00h)
+  let nextChange;
+  if (hour < 6) {
+    nextChange = 6;
+  } else if (hour < 12) {
+    nextChange = 12;
+  } else if (hour < 18) {
+    nextChange = 18;
+  } else {
+    nextChange = 24;
+  }
+  
+  const hoursLeft = nextChange - hour;
+  const minutesLeft = 59 - now.getMinutes();
+  
+  if (hoursLeft > 0) {
+    return `${hoursLeft}h ${minutesLeft}m`;
+  } else {
+    return `${minutesLeft}m`;
+  }
+}
+
 
 // Initialize
 function init() {
