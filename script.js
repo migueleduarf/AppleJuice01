@@ -596,6 +596,97 @@ function getTimeLeft() {
   }
 }
 
+/**
+ * Filtra os produtos baseado na categoria selecionada e termo de busca
+ * 
+ * @returns {Array} Array de produtos filtrados
+ */
+function getFilteredProducts() {
+  let filtered = products;
+  
+  // Filtra por categoria se não for "Todos"
+  if (selectedCategory !== 'Todos') {
+    filtered = filtered.filter(p => p.category === selectedCategory);
+  }
+  
+  // Filtra por termo de busca
+  if (searchTerm) {
+    const term = searchTerm.toLowerCase();
+    filtered = filtered.filter(p => 
+      p.name.toLowerCase().includes(term) || 
+      p.category.toLowerCase().includes(term)
+    );
+  }
+  
+  return filtered;
+}
+
+/**
+ * Calcula estatísticas das promoções atuais
+ * 
+ * @returns {Object} Objeto com estatísticas:
+ *   - totalProducts: Total de produtos
+ *   - onSale: Total de produtos em promoção
+ *   - bestSellers: Total de best sellers
+ *   - avgDiscount: Desconto médio
+ */
+function getPromoStats() {
+  const onSaleProducts = products.filter(p => p.isOnSale);
+  const bestSellers = products.filter(p => p.isBestSeller);
+  
+  // Calcula desconto médio
+  let totalDiscount = 0;
+  onSaleProducts.forEach(p => {
+    if (p.originalPrice > p.price) {
+      const discount = ((p.originalPrice - p.price) / p.originalPrice) * 100;
+      totalDiscount += discount;
+    }
+  });
+  
+  const avgDiscount = onSaleProducts.length > 0 
+    ? Math.round(totalDiscount / onSaleProducts.length) 
+    : 0;
+  
+  return {
+    totalProducts: products.length,
+    onSale: onSaleProducts.length,
+    bestSellers: bestSellers.length,
+    avgDiscount: avgDiscount
+  };
+}
+
+/**
+ * Renderiza as estatísticas de promoções
+ * 
+ * @param {Object} stats - Objeto com estatísticas
+ * @returns {string} HTML das estatísticas
+ */
+function renderPromoStats(stats) {
+  return `
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div class="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-950/20 dark:to-red-900/20 p-4 rounded-lg text-center border border-red-200 dark:border-red-800/30">
+        <div class="text-3xl font-bold text-red-800 dark:text-red-400">${stats.totalProducts}</div>
+        <div class="text-sm text-muted-foreground mt-1">Total de Produtos</div>
+      </div>
+      
+      <div class="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950/20 dark:to-orange-900/20 p-4 rounded-lg text-center border border-orange-200 dark:border-orange-800/30">
+        <div class="text-3xl font-bold text-orange-800 dark:text-orange-400">${stats.onSale}</div>
+        <div class="text-sm text-muted-foreground mt-1">Em Promoção</div>
+      </div>
+      
+      <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-950/20 dark:to-yellow-900/20 p-4 rounded-lg text-center border border-yellow-200 dark:border-yellow-800/30">
+        <div class="text-3xl font-bold text-yellow-800 dark:text-yellow-400">${stats.bestSellers}</div>
+        <div class="text-sm text-muted-foreground mt-1">Best Sellers</div>
+      </div>
+      
+      <div class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950/20 dark:to-green-900/20 p-4 rounded-lg text-center border border-green-200 dark:border-green-800/30">
+        <div class="text-3xl font-bold text-green-800 dark:text-green-400">${stats.avgDiscount}%</div>
+        <div class="text-sm text-muted-foreground mt-1">Desconto Médio</div>
+      </div>
+    </div>
+  `;
+}
+
 
 // Initialize
 function init() {
@@ -1095,35 +1186,6 @@ function renderFeaturedProducts() {
   `;
 }
 
-function renderPromoStats(stats) {
-  return `
-    <div class="bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl p-6 mb-8 shadow-lg">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-        <div class="flex flex-col items-center">
-          <div class="text-3xl font-bold mb-2">${stats.onSale}</div>
-          <div class="text-sm opacity-90">Produtos em Promoção</div>
-          <div class="text-xs opacity-75">
-            ${stats.total > 0 ? `${Math.round((stats.onSale / stats.total) * 100)}%` : '0%'} do catálogo
-          </div>
-        </div>
-        <div class="flex flex-col items-center">
-          <div class="text-3xl font-bold mb-2">${stats.bestSellers}</div>
-          <div class="text-sm opacity-90">Best Sellers</div>
-          <div class="text-xs opacity-75">Mais vendidos agora</div>
-        </div>
-        <div class="flex flex-col items-center">
-          <div class="text-3xl font-bold mb-2">${stats.total}</div>
-          <div class="text-sm opacity-90">Total de Produtos</div>
-          <div class="text-xs opacity-75">Catálogo completo</div>
-        </div>
-      </div>
-      <div class="text-center mt-4 text-sm opacity-90">
-        🔥 Promoções atualizadas dinamicamente • Descontos especiais por horário
-      </div>
-    </div>
-  `;
-}
-
 function renderProductCard(product) {
   const isFavorite = favorites.includes(product.id);
   
@@ -1193,6 +1255,35 @@ function renderStars(rating) {
   }
   
   return starsHtml;
+}
+
+/**
+ * Obtém informações sobre a próxima mudança de promoção
+ * 
+ * @returns {Object} Informação sobre próxima promoção
+ */
+function getNextPromoChange() {
+  const now = new Date();
+  const hour = now.getHours();
+  const day = now.getDay();
+  
+  let nextPromoType = '';
+  
+  // Determinar próxima mudança
+  if (hour < 6) {
+    nextPromoType = 'Manhã (6h-12h)';
+  } else if (hour < 12) {
+    nextPromoType = 'Tarde (12h-18h)';
+  } else if (hour < 18) {
+    nextPromoType = 'Noite (18h-0h)';
+  } else {
+    nextPromoType = 'Madrugada (0h-6h)';
+  }
+  
+  return {
+    nextPromoType,
+    isWeekend: day === 0 || day === 6
+  };
 }
 
 function renderNewsletter() {
