@@ -468,32 +468,62 @@ function applyDynamicPromotions() {
 
 // Initialize
 function init() {
-  // Carrega as configurações e renderiza o conteúdo
-  loadTheme();
-  loadUser();
-  initializeProducts();
-  renderPage();
-  startPromoTimer();
+  console.log('🚀 Iniciando Apple Juice...');
   
-  // Initialize Lucide icons
-  if (typeof lucide !== 'undefined') {
-    lucide.createIcons();
-  }
-  
-  // Remove a tela de loading com animação suave
-  setTimeout(() => {
+  try {
+    // Carrega as configurações e renderiza o conteúdo
+    console.log('📋 Carregando tema...');
+    loadTheme();
+    
+    console.log('👤 Carregando usuário...');
+    loadUser();
+    
+    console.log('🛍️ Inicializando produtos...');
+    initializeProducts();
+    
+    console.log('🎨 Renderizando página...');
+    renderPage();
+    
+    console.log('⏰ Iniciando timer de promoções...');
+    startPromoTimer();
+    
+    // Initialize Lucide icons
+    console.log('✨ Inicializando ícones...');
+    if (typeof lucide !== 'undefined') {
+      lucide.createIcons();
+      console.log('✅ Ícones Lucide carregados!');
+    } else {
+      console.warn('⚠️ Lucide não está disponível!');
+    }
+    
+    console.log('✅ Inicialização completa! Removendo tela de loading...');
+    
+    // Remove a tela de loading com animação suave
+    setTimeout(() => {
+      const loadingScreen = document.getElementById('loading-screen');
+      if (loadingScreen) {
+        console.log('🎬 Removendo tela de loading...');
+        // Adiciona transição suave
+        loadingScreen.style.transition = 'opacity 0.5s ease-out';
+        loadingScreen.style.opacity = '0';
+        
+        // Remove do DOM após a animação
+        setTimeout(() => {
+          loadingScreen.style.display = 'none';
+          console.log('✅ Tela de loading removida! Site pronto!');
+        }, 500);
+      } else {
+        console.error('❌ Elemento loading-screen não encontrado!');
+      }
+    }, 300);
+  } catch (error) {
+    console.error('❌ ERRO na inicialização:', error);
+    // Mesmo com erro, remove a tela de loading
     const loadingScreen = document.getElementById('loading-screen');
     if (loadingScreen) {
-      // Adiciona transição suave
-      loadingScreen.style.transition = 'opacity 0.5s ease-out';
-      loadingScreen.style.opacity = '0';
-      
-      // Remove do DOM após a animação
-      setTimeout(() => {
-        loadingScreen.style.display = 'none';
-      }, 500);
+      loadingScreen.style.display = 'none';
     }
-  }, 300); // Reduzido de 1000ms para 300ms para carregar mais rápido
+  }
 }
 
 function loadUser() {
@@ -2337,5 +2367,12 @@ function scrollToCategories() {
  * - Remove a tela de loading
  */
 
+console.log('📦 Script Apple Juice carregado! Aguardando DOM...');
+
 // Aguarda o HTML carregar completamente antes de executar o código
-document.addEventListener('DOMContentLoaded', init);
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('✅ DOM carregado! Iniciando aplicação...');
+  init();
+});
+
+console.log('🔄 Event listener DOMContentLoaded registrado!');
