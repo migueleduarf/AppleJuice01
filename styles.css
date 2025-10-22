@@ -532,7 +532,7 @@ input { font-size: 1rem; font-weight: 400; line-height: 1.5; }
 }
 
 .from-red-50 {
-  --tw-gradient-from: #fef2f2;
+  --tw-gradient-from: #CBCBCB;
   --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(254, 242, 242, 0));
 }
 
