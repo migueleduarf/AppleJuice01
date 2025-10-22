@@ -532,12 +532,12 @@ input { font-size: 1rem; font-weight: 400; line-height: 1.5; }
 }
 
 .from-red-50 {
-  --tw-gradient-from: #8C1007;
+  --tw-gradient-from: #CBCBCB;
   --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(254, 242, 242, 0));
 }
 
 .to-red-100 {
-  --tw-gradient-to: #4C763B;
+  --tw-gradient-to: #CBCBCB;
 }
 
 .from-red-500 {
