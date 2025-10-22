@@ -2551,6 +2551,144 @@ function scrollToCategories() {
 }
 
 /* ============================================ */
+/* FUNÇÕES DE UI - PAINÉIS E MODAIS */
+/* ============================================ */
+
+/**
+ * Alterna a exibição do carrinho de compras (sidebar)
+ * @param {boolean} forceState - Se fornecido, força o estado (true = abrir, false = fechar)
+ */
+function toggleCart(forceState) {
+  const sidebar = document.getElementById('cart-sidebar');
+  const overlay = document.getElementById('cart-overlay');
+  
+  if (!sidebar || !overlay) {
+    console.error('Cart sidebar ou overlay não encontrados');
+    return;
+  }
+  
+  // Fecha o painel de usuário se estiver aberto
+  const userPanel = document.getElementById('user-panel');
+  const userOverlay = document.getElementById('user-panel-overlay');
+  if (userPanel && !userPanel.classList.contains('translate-x-full')) {
+    userPanel.classList.add('translate-x-full');
+    if (userOverlay) userOverlay.classList.add('hidden');
+  }
+  
+  if (forceState === true || (forceState === undefined && sidebar.classList.contains('translate-x-full'))) {
+    // Abrir carrinho
+    sidebar.classList.remove('translate-x-full');
+    overlay.classList.remove('hidden');
+    document.body.style.overflow = 'hidden'; // Previne scroll do body
+  } else if (forceState === false || forceState === undefined) {
+    // Fechar carrinho
+    sidebar.classList.add('translate-x-full');
+    overlay.classList.add('hidden');
+    document.body.style.overflow = ''; // Restaura scroll do body
+  }
+}
+
+/**
+ * Alterna a exibição do painel de usuário (sidebar)
+ * @param {boolean} forceState - Se fornecido, força o estado (true = abrir, false = fechar)
+ */
+function toggleUserPanel(forceState) {
+  const sidebar = document.getElementById('user-panel');
+  const overlay = document.getElementById('user-panel-overlay');
+  
+  if (!sidebar || !overlay) {
+    console.error('User panel ou overlay não encontrados');
+    return;
+  }
+  
+  // Fecha o carrinho se estiver aberto
+  const cartSidebar = document.getElementById('cart-sidebar');
+  const cartOverlay = document.getElementById('cart-overlay');
+  if (cartSidebar && !cartSidebar.classList.contains('translate-x-full')) {
+    cartSidebar.classList.add('translate-x-full');
+    if (cartOverlay) cartOverlay.classList.add('hidden');
+  }
+  
+  if (forceState === true || (forceState === undefined && sidebar.classList.contains('translate-x-full'))) {
+    // Abrir painel de usuário
+    sidebar.classList.remove('translate-x-full');
+    overlay.classList.remove('hidden');
+    document.body.style.overflow = 'hidden'; // Previne scroll do body
+    updateUserPanel(); // Atualiza o conteúdo do painel
+  } else if (forceState === false || forceState === undefined) {
+    // Fechar painel de usuário
+    sidebar.classList.add('translate-x-full');
+    overlay.classList.add('hidden');
+    document.body.style.overflow = ''; // Restaura scroll do body
+  }
+}
+
+/**
+ * Alterna o menu mobile
+ */
+function toggleMobileMenu() {
+  const menu = document.getElementById('mobile-menu');
+  if (menu) {
+    menu.classList.toggle('hidden');
+  }
+}
+
+/**
+ * Alterna entre modo claro e escuro
+ */
+function toggleTheme() {
+  const html = document.documentElement;
+  const currentTheme = html.classList.contains('dark') ? 'dark' : 'light';
+  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  
+  if (newTheme === 'dark') {
+    html.classList.add('dark');
+  } else {
+    html.classList.remove('dark');
+  }
+  
+  theme = newTheme;
+  localStorage.setItem('theme', newTheme);
+  
+  // Atualiza ícone do tema
+  const themeIcon = document.getElementById('theme-icon');
+  if (themeIcon) {
+    themeIcon.setAttribute('data-lucide', newTheme === 'dark' ? 'sun' : 'moon');
+    if (typeof lucide !== 'undefined') {
+      lucide.createIcons();
+    }
+  }
+}
+
+/**
+ * Função de busca de produtos
+ * @param {string} term - Termo de busca
+ */
+function handleSearch(term) {
+  searchTerm = term.toLowerCase();
+  
+  // Se estamos na home, filtra os produtos
+  if (currentPage === 'home') {
+    renderProducts(getFilteredProducts());
+  }
+  
+  // Se o termo não está vazio e não estamos na home, vai para home com busca
+  if (term && currentPage !== 'home') {
+    navigateTo('home');
+  }
+}
+
+/**
+ * Alterna modal de login (legacy, não usado atualmente)
+ */
+function toggleLogin() {
+  const modal = document.getElementById('login-modal');
+  if (modal) {
+    modal.classList.toggle('hidden');
+  }
+}
+
+/* ============================================ */
 /* INICIALIZAÇÃO DO APLICATIVO */
 /* ============================================ */
 /*
