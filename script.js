@@ -909,25 +909,6 @@ function renderHeroSection() {
   return `
     <section class="bg-gradient-to-r from-red-50 to-red-100 dark:from-red-950/20 dark:to-red-900/20 py-20">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Banner de Promoção Dinâmica -->
-        <div class="${promoInfo.color} text-white rounded-lg p-4 mb-8 text-center shadow-lg">
-          <div class="flex flex-col sm:flex-row items-center justify-between">
-            <div class="flex-1">
-              <h3 class="text-lg font-bold">${promoInfo.title}</h3>
-              <p class="text-sm opacity-90">${promoInfo.description}</p>
-            </div>
-            <div class="flex items-center gap-4 mt-2 sm:mt-0">
-              <span class="bg-white text-gray-800 px-3 py-1 rounded-full text-sm font-medium">
-                ${promoInfo.badge}
-              </span>
-              <span class="bg-yellow-400 text-black px-3 py-1 rounded-full text-sm font-bold">
-                ${promoInfo.discount}
-              </span>
-              ${timeLeft ? `<span class="bg-black/20 px-3 py-1 rounded-full text-sm">⏰ ${timeLeft}</span>` : ''}
-            </div>
-          </div>
-        </div>
-
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div>
             <h1 class="text-4xl lg:text-6xl font-bold text-foreground mb-6">
@@ -970,10 +951,6 @@ function renderHeroSection() {
               class="rounded-lg shadow-2xl w-full h-auto"
               onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0yMDAgMTAwVjIwME0xNTAgMTUwSDE1MCIgc3Ryb2tlPSIjOUIwMDAwIiBzdHJva2Utd2lkdGg9IjIiLz4KPC9zdmc+'"
             />
-            <div class="absolute -top-4 -right-4 bg-yellow-400 text-black px-4 py-2 rounded-lg transform rotate-12">
-              <span class="font-bold">OFERTA!</span>
-              <p class="text-sm">${promoInfo.discount} OFF</p>
-            </div>
           </div>
         </div>
       </div>
