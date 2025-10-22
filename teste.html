@@ -90,7 +90,7 @@
             originalLog.apply(console, args);
             addLog(args.join(' '));
         };
-        
+        n
         console.error = function(...args) {
             originalError.apply(console, args);
             addLog(args.join(' '), 'error');

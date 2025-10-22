@@ -537,7 +537,7 @@ input { font-size: 1rem; font-weight: 400; line-height: 1.5; }
 }
 
 .to-red-100 {
-  --tw-gradient-to: #fee2e2;
+  --tw-gradient-to: #CBCBCB;
 }
 
 .from-red-500 {
