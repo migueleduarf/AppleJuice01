@@ -1,1 +1,202 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Funções - Apple Juice</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        .test-panel {
+            padding: 20px;
+            margin: 20px;
+            border: 2px solid #8B0000;
+            border-radius: 8px;
+        }
+        .test-button {
+            margin: 10px;
+            padding: 10px 20px;
+            background: #8B0000;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .test-button:hover {
+            background: #A00000;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-background">
+    
+    <div class="test-panel">
+        <h1 class="text-2xl font-bold mb-4">🧪 Teste de Funções - Apple Juice</h1>
+        
+        <div id="test-results" class="space-y-2">
+            <h2 class="text-xl font-semibold mt-6 mb-3">Status de Carregamento:</h2>
+        </div>
+        
+        <h2 class="text-xl font-semibold mt-6 mb-3">Testes de Funções:</h2>
+        
+        <button class="test-button" onclick="testToggleCart()">
+            Testar toggleCart()
+        </button>
+        
+        <button class="test-button" onclick="testToggleUserPanel()">
+            Testar toggleUserPanel()
+        </button>
+        
+        <button class="test-button" onclick="testToggleTheme()">
+            Testar toggleTheme()
+        </button>
+        
+        <button class="test-button" onclick="testToggleMobileMenu()">
+            Testar toggleMobileMenu()
+        </button>
+        
+        <button class="test-button" onclick="window.location.href='index.html'">
+            Voltar para o Site
+        </button>
+    </div>
+    
+    <!-- Elementos necessários para os testes -->
+    <div id="cart-overlay" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="toggleCart()"></div>
+    <div id="user-panel-overlay" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="toggleUserPanel()"></div>
+    
+    <div id="cart-sidebar" class="fixed inset-y-0 right-0 z-50 w-full sm:w-96 bg-background border-l border-border transform translate-x-full transition-transform duration-300 ease-in-out">
+        <div class="flex flex-col h-full">
+            <div class="flex items-center justify-between p-6 border-b border-border">
+                <h2 class="text-lg font-semibold">Carrinho de Compras (TESTE)</h2>
+                <button onclick="toggleCart()" class="p-2 hover:bg-muted rounded-lg">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="flex-1 p-6">
+                <p>Se você está vendo isso, o carrinho está funcionando! ✅</p>
+            </div>
+        </div>
+    </div>
+    
+    <div id="user-panel" class="fixed inset-y-0 right-0 z-50 w-full sm:w-96 bg-background border-l border-border transform translate-x-full transition-transform duration-300 ease-in-out">
+        <div class="flex flex-col h-full">
+            <div class="flex items-center justify-between p-6 border-b border-border">
+                <h2 class="text-lg font-semibold">Painel de Usuário (TESTE)</h2>
+                <button onclick="toggleUserPanel()" class="p-2 hover:bg-muted rounded-lg">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="flex-1 p-6">
+                <p>Se você está vendo isso, o painel de usuário está funcionando! ✅</p>
+            </div>
+        </div>
+    </div>
+    
+    <div id="mobile-menu" class="hidden md:hidden">
+        <p>Menu mobile teste</p>
+    </div>
+    
+    <script src="script.js"></script>
+    <script>
+        // Testes
+        function addResult(message, isSuccess) {
+            const results = document.getElementById('test-results');
+            const div = document.createElement('div');
+            div.className = `status ${isSuccess ? 'success' : 'error'}`;
+            div.textContent = message;
+            results.appendChild(div);
+        }
+        
+        function testToggleCart() {
+            try {
+                if (typeof toggleCart === 'function') {
+                    toggleCart();
+                    addResult('✅ toggleCart() executada com sucesso!', true);
+                } else {
+                    addResult('❌ toggleCart() não está definida!', false);
+                }
+            } catch (error) {
+                addResult('❌ Erro ao executar toggleCart(): ' + error.message, false);
+            }
+        }
+        
+        function testToggleUserPanel() {
+            try {
+                if (typeof toggleUserPanel === 'function') {
+                    toggleUserPanel();
+                    addResult('✅ toggleUserPanel() executada com sucesso!', true);
+                } else {
+                    addResult('❌ toggleUserPanel() não está definida!', false);
+                }
+            } catch (error) {
+                addResult('❌ Erro ao executar toggleUserPanel(): ' + error.message, false);
+            }
+        }
+        
+        function testToggleTheme() {
+            try {
+                if (typeof toggleTheme === 'function') {
+                    toggleTheme();
+                    addResult('✅ toggleTheme() executada com sucesso!', true);
+                } else {
+                    addResult('❌ toggleTheme() não está definida!', false);
+                }
+            } catch (error) {
+                addResult('❌ Erro ao executar toggleTheme(): ' + error.message, false);
+            }
+        }
+        
+        function testToggleMobileMenu() {
+            try {
+                if (typeof toggleMobileMenu === 'function') {
+                    toggleMobileMenu();
+                    addResult('✅ toggleMobileMenu() executada com sucesso!', true);
+                } else {
+                    addResult('❌ toggleMobileMenu() não está definida!', false);
+                }
+            } catch (error) {
+                addResult('❌ Erro ao executar toggleMobileMenu(): ' + error.message, false);
+            }
+        }
+        
+        // Verificações automáticas ao carregar
+        window.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                // Verifica se as funções estão disponíveis
+                addResult('Script.js carregado: ' + (typeof init === 'function' ? 'SIM' : 'NÃO'), typeof init === 'function');
+                addResult('toggleCart definida: ' + (typeof toggleCart === 'function' ? 'SIM' : 'NÃO'), typeof toggleCart === 'function');
+                addResult('toggleUserPanel definida: ' + (typeof toggleUserPanel === 'function' ? 'SIM' : 'NÃO'), typeof toggleUserPanel === 'function');
+                addResult('toggleTheme definida: ' + (typeof toggleTheme === 'function' ? 'SIM' : 'NÃO'), typeof toggleTheme === 'function');
+                addResult('toggleMobileMenu definida: ' + (typeof toggleMobileMenu === 'function' ? 'SIM' : 'NÃO'), typeof toggleMobileMenu === 'function');
+                
+                // Verifica se os elementos existem
+                addResult('cart-sidebar existe: ' + (document.getElementById('cart-sidebar') ? 'SIM' : 'NÃO'), !!document.getElementById('cart-sidebar'));
+                addResult('user-panel existe: ' + (document.getElementById('user-panel') ? 'SIM' : 'NÃO'), !!document.getElementById('user-panel'));
+                addResult('cart-overlay existe: ' + (document.getElementById('cart-overlay') ? 'SIM' : 'NÃO'), !!document.getElementById('cart-overlay'));
+                addResult('user-panel-overlay existe: ' + (document.getElementById('user-panel-overlay') ? 'SIM' : 'NÃO'), !!document.getElementById('user-panel-overlay'));
+                
+                // Inicializa ícones Lucide
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                    addResult('Ícones Lucide inicializados', true);
+                } else {
+                    addResult('Lucide não carregado', false);
+                }
+            }, 500);
+        });
+    </script>
+</body>
+</html>
 
