@@ -2689,6 +2689,31 @@ function toggleLogin() {
 }
 
 /* ============================================ */
+/* EXPOSIÇÃO DAS FUNÇÕES NO ESCOPO GLOBAL */
+/* ============================================ */
+/*
+ * IMPORTANTE: Estas linhas disponibilizam as funções principais
+ * no objeto window IMEDIATAMENTE quando o script carrega.
+ * 
+ * Isso garante que os onclick="" no HTML funcionem corretamente,
+ * pois as funções já existem no escopo global quando a página carrega.
+ */
+
+console.log('📦 Disponibilizando funções no escopo global...');
+
+// Funções de UI - Painéis e Modais
+window.toggleCart = toggleCart;
+window.toggleUserPanel = toggleUserPanel;
+window.toggleMobileMenu = toggleMobileMenu;
+window.toggleTheme = toggleTheme;
+window.toggleLogin = toggleLogin;
+
+// Funções de Navegação e Busca
+window.handleSearch = handleSearch;
+
+console.log('✅ Funções de UI disponibilizadas no escopo global!');
+
+/* ============================================ */
 /* INICIALIZAÇÃO DO APLICATIVO */
 /* ============================================ */
 /*
@@ -2710,6 +2735,38 @@ console.log('📦 Script Apple Juice carregado! Aguardando DOM...');
 document.addEventListener('DOMContentLoaded', () => {
   console.log('✅ DOM carregado! Iniciando aplicação...');
   init();
+  
+  // Expõe funções adicionais no escopo global após inicialização
+  console.log('📦 Disponibilizando funções adicionais no escopo global...');
+  window.navigateTo = navigateTo;
+  window.addToCart = addToCart;
+  window.removeFromCart = removeFromCart;
+  window.updateCartItemQuantity = updateCartItemQuantity;
+  window.handleLogin = handleLogin;
+  window.handleRegister = handleRegister;
+  window.handleLogout = handleLogout;
+  window.showRegister = showRegister;
+  window.closeProductModal = closeProductModal;
+  window.openProductModal = openProductModal;
+  window.toggleFavorite = toggleFavorite;
+  window.handleCheckout = handleCheckout;
+  window.closeMobileMenu = closeMobileMenu;
+  window.renderProductCard = renderProductCard;
+  
+  // ✅ FUNÇÕES CRÍTICAS QUE ESTAVAM FALTANDO:
+  window.toggleCart = toggleCart;
+  window.toggleUserPanel = toggleUserPanel;
+  window.toggleTheme = toggleTheme;
+  window.toggleMobileMenu = toggleMobileMenu;
+  window.toggleLogin = toggleLogin;
+  window.handleSearch = handleSearch;
+  window.updateUserPanel = updateUserPanel;
+  window.showUserOrders = showUserOrders;
+  window.showUserFavorites = showUserFavorites;
+  window.showUserSettings = showUserSettings;
+  window.showUserAddress = showUserAddress;
+  
+  console.log('✅ Todas as funções disponibilizadas no escopo global!');
 });
 
 console.log('🔄 Event listener DOMContentLoaded registrado!');
