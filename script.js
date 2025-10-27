@@ -2699,19 +2699,46 @@ function toggleLogin() {
  * pois as funções já existem no escopo global quando a página carrega.
  */
 
-console.log('📦 Disponibilizando funções no escopo global...');
+console.log('📦 Disponibilizando TODAS as funções no escopo global...');
 
-// Funções de UI - Painéis e Modais
+// ===== FUNÇÕES DE UI - PAINÉIS E MODAIS =====
 window.toggleCart = toggleCart;
 window.toggleUserPanel = toggleUserPanel;
 window.toggleMobileMenu = toggleMobileMenu;
 window.toggleTheme = toggleTheme;
 window.toggleLogin = toggleLogin;
+window.closeMobileMenu = closeMobileMenu;
 
-// Funções de Navegação e Busca
+// ===== FUNÇÕES DE NAVEGAÇÃO E BUSCA =====
+window.navigateTo = navigateTo;
 window.handleSearch = handleSearch;
 
-console.log('✅ Funções de UI disponibilizadas no escopo global!');
+// ===== FUNÇÕES DO CARRINHO (CRÍTICAS!) =====
+window.addToCart = addToCart;
+window.removeFromCart = removeFromCart;
+window.updateQuantity = updateQuantity;
+
+// ===== FUNÇÕES DE AUTENTICAÇÃO =====
+window.handleLogin = handleLogin;
+window.handleRegister = handleRegister;
+window.handleLogout = handleLogout;
+window.showRegister = showRegister;
+
+// ===== FUNÇÕES DE PRODUTOS =====
+window.closeProductModal = closeProductModal;
+window.openProductModal = openProductModal;
+window.toggleFavorite = toggleFavorite;
+window.renderProductCard = renderProductCard;
+
+// ===== FUNÇÕES DE CHECKOUT E USUÁRIO =====
+window.handleCheckout = handleCheckout;
+window.updateUserPanel = updateUserPanel;
+window.showUserOrders = showUserOrders;
+window.showUserFavorites = showUserFavorites;
+window.showUserSettings = showUserSettings;
+window.showUserAddress = showUserAddress;
+
+console.log('✅ TODAS as funções disponibilizadas no escopo global!');
 
 /* ============================================ */
 /* INICIALIZAÇÃO DO APLICATIVO */
@@ -2735,38 +2762,7 @@ console.log('📦 Script Apple Juice carregado! Aguardando DOM...');
 document.addEventListener('DOMContentLoaded', () => {
   console.log('✅ DOM carregado! Iniciando aplicação...');
   init();
-  
-  // Expõe funções adicionais no escopo global após inicialização
-  console.log('📦 Disponibilizando funções adicionais no escopo global...');
-  window.navigateTo = navigateTo;
-  window.addToCart = addToCart;
-  window.removeFromCart = removeFromCart;
-  window.updateQuantity = updateQuantity;
-  window.handleLogin = handleLogin;
-  window.handleRegister = handleRegister;
-  window.handleLogout = handleLogout;
-  window.showRegister = showRegister;
-  window.closeProductModal = closeProductModal;
-  window.openProductModal = openProductModal;
-  window.toggleFavorite = toggleFavorite;
-  window.handleCheckout = handleCheckout;
-  window.closeMobileMenu = closeMobileMenu;
-  window.renderProductCard = renderProductCard;
-  
-  // ✅ FUNÇÕES CRÍTICAS QUE ESTAVAM FALTANDO:
-  window.toggleCart = toggleCart;
-  window.toggleUserPanel = toggleUserPanel;
-  window.toggleTheme = toggleTheme;
-  window.toggleMobileMenu = toggleMobileMenu;
-  window.toggleLogin = toggleLogin;
-  window.handleSearch = handleSearch;
-  window.updateUserPanel = updateUserPanel;
-  window.showUserOrders = showUserOrders;
-  window.showUserFavorites = showUserFavorites;
-  window.showUserSettings = showUserSettings;
-  window.showUserAddress = showUserAddress;
-  
-  console.log('✅ Todas as funções disponibilizadas no escopo global!');
+  console.log('✅ Aplicação inicializada com sucesso!');
 });
 
 console.log('🔄 Event listener DOMContentLoaded registrado!');
