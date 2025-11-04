@@ -394,7 +394,7 @@ function shouldBeOnSale(productId, category) {
   // Chance base de 60% de estar em promoção
   let saleChance = 0.6;
   
-  // Se a categoria está em promoção pelo horário, aumenta 20%
+  // Se a categoria está em promo��ão pelo horário, aumenta 20%
   if (timeBasedPromos.includes(category)) {
     saleChance += 0.2;
   }
@@ -693,6 +693,18 @@ function init() {
   console.log('🚀 Iniciando Apple Juice...');
   
   try {
+    // Preenche o objeto SIDEBARS após o DOM ter sido carregado.
+    SIDEBARS = {
+      'cart-sidebar': {
+        sidebar: document.getElementById('cart-sidebar'),
+        overlay: document.getElementById('cart-overlay'),
+      },
+      'user-panel': {
+        sidebar: document.getElementById('user-panel'),
+        overlay: document.getElementById('user-panel-overlay'),
+      }
+    };
+
     // Carrega as configurações e renderiza o conteúdo
     console.log('📋 Carregando tema...');
     loadTheme();
@@ -706,6 +718,10 @@ function init() {
     console.log('🎨 Renderizando página...');
     renderPage();
     
+    // Anexa os event listeners aos elementos da UI
+    console.log('🔗 Anexando event listeners...');
+    initializeEventListeners();
+
     console.log('⏰ Iniciando timer de promoções...');
     startPromoTimer();
     
@@ -718,33 +734,9 @@ function init() {
       console.warn('⚠️ Lucide não está disponível!');
     }
     
-    console.log('✅ Inicialização completa! Removendo tela de loading...');
-    
-    // Remove a tela de loading com animação suave
-    setTimeout(() => {
-      const loadingScreen = document.getElementById('loading-screen');
-      if (loadingScreen) {
-        console.log('🎬 Removendo tela de loading...');
-        // Adiciona transição suave
-        loadingScreen.style.transition = 'opacity 0.5s ease-out';
-        loadingScreen.style.opacity = '0';
-        
-        // Remove do DOM após a animação
-        setTimeout(() => {
-          loadingScreen.style.display = 'none';
-          console.log('✅ Tela de loading removida! Site pronto!');
-        }, 500);
-      } else {
-        console.error('❌ Elemento loading-screen não encontrado!');
-      }
-    }, 300);
+    console.log('✅ Inicialização completa! Site pronto!');
   } catch (error) {
     console.error('❌ ERRO na inicialização:', error);
-    // Mesmo com erro, remove a tela de loading
-    const loadingScreen = document.getElementById('loading-screen');
-    if (loadingScreen) {
-      loadingScreen.style.display = 'none';
-    }
   }
 }
 
@@ -802,13 +794,6 @@ function loadTheme() {
     theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   }
   applyTheme();
-}
-
-function toggleTheme() {
-  theme = theme === 'light' ? 'dark' : 'light';
-  localStorage.setItem('theme', theme);
-  applyTheme();
-  showToast(`Tema alterado para ${theme === 'dark' ? 'escuro' : 'claro'}`, 'info');
 }
 
 function applyTheme() {
@@ -1653,49 +1638,12 @@ function renderCheckoutPage(container) {
 }
 
 // Event Handlers
-function handleSearch(term) {
-  searchTerm = term;
-  if (currentPage === 'home') {
-    const productsSection = document.getElementById('produtos');
-    if (productsSection) {
-      productsSection.innerHTML = renderFeaturedProducts();
-      if (typeof lucide !== 'undefined') {
-        lucide.createIcons();
-      }
-    }
-  }
-}
 
-function toggleMobileMenu() {
-  const mobileMenu = document.getElementById('mobile-menu');
-  if (mobileMenu) {
-    mobileMenu.classList.toggle('hidden');
-  }
-}
 
 function closeMobileMenu() {
   const mobileMenu = document.getElementById('mobile-menu');
   if (mobileMenu) {
     mobileMenu.classList.add('hidden');
-  }
-}
-
-function toggleCart(show = null) {
-  const cartSidebar = document.getElementById('cart-sidebar');
-  const cartOverlay = document.getElementById('cart-overlay');
-  
-  if (show === null) {
-    const isOpen = !cartSidebar.classList.contains('translate-x-full');
-    show = !isOpen;
-  }
-  
-  if (show) {
-    cartSidebar.classList.remove('translate-x-full');
-    cartOverlay.classList.remove('hidden');
-    renderCart();
-  } else {
-    cartSidebar.classList.add('translate-x-full');
-    cartOverlay.classList.add('hidden');
   }
 }
 
@@ -1718,6 +1666,7 @@ function addToCart(productId) {
   }
   
   updateCartCount();
+  renderCart();
   showToast(`${product.name} adicionado ao carrinho!`, 'success');
 }
 
@@ -1768,25 +1717,30 @@ function renderCart() {
   const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   
   cartItemsElement.innerHTML = cartItems.map(item => `
-    <div class="flex items-center gap-4 py-4 border-b border-border">
-      <img src="${item.image}" alt="${item.name}" class="w-16 h-16 object-cover rounded" 
-           onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0zMiAyMFY0NE0yMCAzMkg0NCIgc3Ryb2tlPSIjOUIwMDAwIiBzdHJva2Utd2lkdGg9IjIiLz4KPC9zdmc+'">
-      <div class="flex-1">
-        <h4 class="font-medium text-foreground">${item.name}</h4>
-        <p class="text-sm text-muted-foreground">R$ ${item.price.toFixed(2).replace('.', ',')}</p>
-        <div class="flex items-center gap-2 mt-2">
-          <button onclick="updateQuantity(${item.id}, ${item.quantity - 1})" class="w-8 h-8 rounded bg-muted hover:bg-border flex items-center justify-center">
-            <i data-lucide="minus" class="w-4 h-4"></i>
-          </button>
-          <span class="w-8 text-center">${item.quantity}</span>
-          <button onclick="updateQuantity(${item.id}, ${item.quantity + 1})" class="w-8 h-8 rounded bg-muted hover:bg-border flex items-center justify-center">
-            <i data-lucide="plus" class="w-4 h-4"></i>
+    <div class="sidebar-item">
+      <img src="${item.image}" alt="${item.name}" class="sidebar-item-image"
+           onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNzIiIGhlaWdodD0iNzIiIHZpZXdCb3g9IjAgMCA3MiA3MiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjcyIiBoZWlnaHQ9IjcyIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0zNiAyNFY0OE0yNCAzNkg0OCIgc3Ryb2tlPSIjOUIwMDAwIiBzdHJva2Utd2lkdGg9IjIiLz4KPC9zdmc+'">
+      <div class="flex-1 min-w-0">
+        <div class="flex justify-between items-start gap-2">
+          <h4 class="font-semibold text-foreground truncate pr-2">${item.name}</h4>
+          <button onclick="removeFromCart(${item.id})" class="sidebar-item-button hover:bg-red-100 dark:hover:bg-red-900/50">
+            <i data-lucide="trash-2" class="w-4 h-4 text-red-600"></i>
           </button>
         </div>
+        <p class="text-sm text-muted-foreground mt-1">R$ ${item.price.toFixed(2).replace('.', ',')}</p>
+        <div class="flex items-center justify-between mt-3">
+          <div class="flex items-center gap-2">
+            <button onclick="updateQuantity(${item.id}, ${item.quantity - 1})" class="sidebar-item-button">
+              <i data-lucide="minus" class="w-4 h-4"></i>
+            </button>
+            <span class="w-10 text-center font-medium">${item.quantity}</span>
+            <button onclick="updateQuantity(${item.id}, ${item.quantity + 1})" class="sidebar-item-button">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+            </button>
+          </div>
+          <span class="font-bold text-lg text-primary">R$ ${(item.price * item.quantity).toFixed(2).replace('.', ',')}</span>
+        </div>
       </div>
-      <button onclick="removeFromCart(${item.id})" class="p-2 text-red-500 hover:bg-red-50 rounded">
-        <i data-lucide="trash-2" class="w-4 h-4"></i>
-      </button>
     </div>
   `).join('');
   
@@ -1820,68 +1774,6 @@ function toggleFavorite(productId) {
   }
 }
 
-function toggleLogin() {
-  const loginModal = document.getElementById('login-modal');
-  if (loginModal) {
-    loginModal.classList.toggle('hidden');
-  }
-}
-
-function handleLogin(event) {
-  event.preventDefault();
-  const email = document.getElementById('login-email').value;
-  const password = document.getElementById('login-password').value;
-  
-  // Simulate login
-  currentUser = { 
-    email, 
-    name: email.split('@')[0],
-    joined: new Date().toLocaleDateString('pt-BR'),
-    orders: [],
-    avatar: email.charAt(0).toUpperCase()
-  };
-  
-  // Save to localStorage
-  localStorage.setItem('currentUser', JSON.stringify(currentUser));
-  
-  showToast(`Bem-vindo, ${currentUser.name}!`, 'success');
-  toggleLogin();
-  updateUserStatus();
-  updateUserPanel();
-}
-
-function handleLogout() {
-  currentUser = null;
-  localStorage.removeItem('currentUser');
-  showToast('Voc�� saiu da sua conta', 'info');
-  updateUserStatus();
-  updateUserPanel();
-  toggleUserPanel(false);
-}
-
-function toggleUserPanel(show = null) {
-  const userPanel = document.getElementById('user-panel');
-  const userOverlay = document.getElementById('user-panel-overlay');
-  
-  if (show === null) {
-    const isOpen = !userPanel.classList.contains('translate-x-full');
-    show = !isOpen;
-  }
-  
-  if (show) {
-    userPanel.classList.remove('translate-x-full');
-    userOverlay.classList.remove('hidden');
-    updateUserPanel();
-  } else {
-    userPanel.classList.add('translate-x-full');
-    userOverlay.classList.add('hidden');
-  }
-  
-  // Close cart if open
-  if (show) {
-    toggleCart(false);
-  }
-}
 
 function updateUserStatus() {
   const indicator = document.getElementById('user-status-indicator');
@@ -1897,85 +1789,71 @@ function updateUserStatus() {
 function updateUserPanel() {
   const content = document.getElementById('user-panel-content');
   if (!content) return;
-  
+
   if (currentUser) {
     // User is logged in
     content.innerHTML = `
       <div class="space-y-6">
         <!-- User Profile -->
         <div class="text-center pb-6 border-b border-border">
-          <div class="w-20 h-20 bg-gradient-to-r from-red-600 to-red-800 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span class="text-3xl text-white font-bold">${currentUser.avatar}</span>
+          <div class="w-24 h-24 bg-gradient-to-r from-red-600 to-red-800 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+            <span class="text-4xl text-white font-bold">${currentUser.avatar}</span>
           </div>
-          <h3 class="text-xl font-semibold mb-1">${currentUser.name}</h3>
+          <h3 class="text-2xl font-semibold mb-1">${currentUser.name}</h3>
           <p class="text-sm text-muted-foreground">${currentUser.email}</p>
           <p class="text-xs text-muted-foreground mt-2">Membro desde ${currentUser.joined}</p>
         </div>
-        
+
         <!-- Quick Stats -->
         <div class="grid grid-cols-3 gap-4">
-          <div class="text-center p-3 bg-muted rounded-lg">
-            <div class="text-2xl font-bold text-red-800">${currentUser.orders?.length || 0}</div>
-            <div class="text-xs text-muted-foreground">Pedidos</div>
+          <div class="text-center p-4 bg-muted rounded-xl border border-border">
+            <div class="text-3xl font-bold text-primary">${currentUser.orders?.length || 0}</div>
+            <div class="text-xs text-muted-foreground mt-1">Pedidos</div>
           </div>
-          <div class="text-center p-3 bg-muted rounded-lg">
-            <div class="text-2xl font-bold text-red-800">${favorites.length}</div>
-            <div class="text-xs text-muted-foreground">Favoritos</div>
+          <div class="text-center p-4 bg-muted rounded-xl border border-border">
+            <div class="text-3xl font-bold text-primary">${favorites.length}</div>
+            <div class="text-xs text-muted-foreground mt-1">Favoritos</div>
           </div>
-          <div class="text-center p-3 bg-muted rounded-lg">
-            <div class="text-2xl font-bold text-red-800">${cartItems.length}</div>
-            <div class="text-xs text-muted-foreground">Carrinho</div>
+          <div class="text-center p-4 bg-muted rounded-xl border border-border">
+            <div class="text-3xl font-bold text-primary">${cartItems.length}</div>
+            <div class="text-xs text-muted-foreground mt-1">Carrinho</div>
           </div>
         </div>
-        
+
         <!-- Menu Options -->
-        <div class="space-y-2">
-          <button onclick="showUserOrders()" class="w-full flex items-center justify-between p-4 bg-muted hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-colors">
-            <div class="flex items-center gap-3">
-              <i data-lucide="package" class="w-5 h-5 text-red-800"></i>
-              <span class="font-medium">Meus Pedidos</span>
+        <div class="space-y-2 pt-4 border-t border-border">
+          <button onclick="showUserOrders()" class="w-full flex items-center justify-between p-4 hover:bg-accent rounded-lg transition-colors">
+            <div class="flex items-center gap-4">
+              <i data-lucide="package" class="w-6 h-6 text-primary"></i>
+              <span class="font-semibold text-lg">Meus Pedidos</span>
             </div>
             <i data-lucide="chevron-right" class="w-5 h-5 text-muted-foreground"></i>
           </button>
           
-          <button onclick="showUserFavorites()" class="w-full flex items-center justify-between p-4 bg-muted hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-colors">
-            <div class="flex items-center gap-3">
-              <i data-lucide="heart" class="w-5 h-5 text-red-800"></i>
-              <span class="font-medium">Favoritos</span>
+          <button onclick="showUserFavorites()" class="w-full flex items-center justify-between p-4 hover:bg-accent rounded-lg transition-colors">
+            <div class="flex items-center gap-4">
+              <i data-lucide="heart" class="w-6 h-6 text-primary"></i>
+              <span class="font-semibold text-lg">Favoritos</span>
             </div>
             <i data-lucide="chevron-right" class="w-5 h-5 text-muted-foreground"></i>
           </button>
           
-          <button onclick="showUserSettings()" class="w-full flex items-center justify-between p-4 bg-muted hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-colors">
-            <div class="flex items-center gap-3">
-              <i data-lucide="settings" class="w-5 h-5 text-red-800"></i>
-              <span class="font-medium">Configurações</span>
-            </div>
-            <i data-lucide="chevron-right" class="w-5 h-5 text-muted-foreground"></i>
-          </button>
-          
-          <button onclick="showUserAddress()" class="w-full flex items-center justify-between p-4 bg-muted hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-colors">
-            <div class="flex items-center gap-3">
-              <i data-lucide="map-pin" class="w-5 h-5 text-red-800"></i>
-              <span class="font-medium">Endereços</span>
-            </div>
-            <i data-lucide="chevron-right" class="w-5 h-5 text-muted-foreground"></i>
-          </button>
-          
-          <button onclick="showUserHelp()" class="w-full flex items-center justify-between p-4 bg-muted hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-colors">
-            <div class="flex items-center gap-3">
-              <i data-lucide="help-circle" class="w-5 h-5 text-red-800"></i>
-              <span class="font-medium">Ajuda & Suporte</span>
+          <button onclick="showUserSettings()" class="w-full flex items-center justify-between p-4 hover:bg-accent rounded-lg transition-colors">
+            <div class="flex items-center gap-4">
+              <i data-lucide="settings" class="w-6 h-6 text-primary"></i>
+              <span class="font-semibold text-lg">Configurações</span>
             </div>
             <i data-lucide="chevron-right" class="w-5 h-5 text-muted-foreground"></i>
           </button>
         </div>
-        
+
         <!-- Logout Button -->
-        <button onclick="handleLogout()" class="w-full bg-red-800 hover:bg-red-900 text-white py-3 rounded-lg transition-colors flex items-center justify-center gap-2">
-          <i data-lucide="log-out" class="w-5 h-5"></i>
-          <span>Sair da Conta</span>
-        </button>
+        <div class="pt-4 border-t border-border">
+          <button onclick="handleLogout()" class="w-full sidebar-footer-button flex items-center justify-center gap-2">
+            <i data-lucide="log-out" class="w-5 h-5"></i>
+            <span>Sair da Conta</span>
+          </button>
+        </div>
       </div>
     `;
   } else {
@@ -1983,25 +1861,25 @@ function updateUserPanel() {
     content.innerHTML = `
       <div class="space-y-6">
         <!-- Login Prompt -->
-        <div class="text-center py-8">
-          <div class="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-            <i data-lucide="user-x" class="w-10 h-10 text-muted-foreground"></i>
+        <div class="text-center pt-8 pb-4">
+          <div class="w-24 h-24 bg-muted rounded-full flex items-center justify-center mx-auto mb-4 border border-border">
+            <i data-lucide="user-x" class="w-12 h-12 text-muted-foreground"></i>
           </div>
-          <h3 class="text-xl font-semibold mb-2">Você não está logado</h3>
-          <p class="text-sm text-muted-foreground mb-6">Faça login para acessar seu perfil e pedidos</p>
+          <h3 class="text-2xl font-semibold mb-2">Acesse sua Conta</h3>
+          <p class="text-sm text-muted-foreground">Faça login para ter uma experiência completa</p>
         </div>
         
         <!-- Login Form -->
-        <form onsubmit="handleQuickLogin(event)" class="space-y-4">
+        <form onsubmit="handleQuickLogin(event)" class="space-y-4 px-4">
           <div>
             <label class="block text-sm font-medium mb-2">E-mail</label>
-            <input type="email" id="quick-login-email" required class="w-full p-3 border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-red-800">
+            <input type="email" id="quick-login-email" required class="w-full p-3 border border-border rounded-lg bg-input focus:outline-none focus:ring-2 focus:ring-primary">
           </div>
           <div>
             <label class="block text-sm font-medium mb-2">Senha</label>
-            <input type="password" id="quick-login-password" required class="w-full p-3 border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-red-800">
+            <input type="password" id="quick-login-password" required class="w-full p-3 border border-border rounded-lg bg-input focus:outline-none focus:ring-2 focus:ring-primary">
           </div>
-          <button type="submit" class="w-full bg-red-800 hover:bg-red-900 text-white py-3 rounded-lg transition-colors">
+          <button type="submit" class="w-full sidebar-footer-button">
             Entrar
           </button>
         </form>
@@ -2009,28 +1887,8 @@ function updateUserPanel() {
         <div class="text-center">
           <p class="text-sm text-muted-foreground">
             Não tem conta? 
-            <button onclick="showRegisterPanel()" class="text-red-800 hover:underline font-medium">Registre-se</button>
+            <button onclick="showRegisterPanel()" class="text-primary hover:underline font-semibold">Registre-se</button>
           </p>
-        </div>
-        
-        <!-- Guest Options -->
-        <div class="pt-6 border-t border-border space-y-2">
-          <h4 class="font-medium mb-3">Acessar como visitante</h4>
-          <button onclick="toggleCart(true); toggleUserPanel(false);" class="w-full flex items-center justify-between p-4 bg-muted hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-colors">
-            <div class="flex items-center gap-3">
-              <i data-lucide="shopping-cart" class="w-5 h-5 text-red-800"></i>
-              <span class="font-medium">Ver Carrinho</span>
-            </div>
-            <i data-lucide="chevron-right" class="w-5 h-5 text-muted-foreground"></i>
-          </button>
-          
-          <button onclick="navigateTo('promotions'); toggleUserPanel(false);" class="w-full flex items-center justify-between p-4 bg-muted hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-colors">
-            <div class="flex items-center gap-3">
-              <i data-lucide="tag" class="w-5 h-5 text-red-800"></i>
-              <span class="font-medium">Ver Promoções</span>
-            </div>
-            <i data-lucide="chevron-right" class="w-5 h-5 text-muted-foreground"></i>
-          </button>
         </div>
       </div>
     `;
@@ -2507,9 +2365,10 @@ function showToast(message, type = 'info') {
   
   container.appendChild(toast);
   
-  // Trigger reflow and add show class
-  toast.offsetHeight;
-  toast.classList.add('show');
+  // Use a short timeout to allow the element to be added to the DOM before adding the 'show' class
+  setTimeout(() => {
+    toast.classList.add('show');
+  }, 500);
   
   // Auto remove after 5 seconds
   setTimeout(() => {
@@ -2555,72 +2414,119 @@ function scrollToCategories() {
 /* ============================================ */
 
 /**
- * Alterna a exibição do carrinho de compras (sidebar)
- * @param {boolean} forceState - Se fornecido, força o estado (true = abrir, false = fechar)
+ * Anexa os event listeners aos elementos de UI interativos
  */
-function toggleCart(forceState) {
-  const sidebar = document.getElementById('cart-sidebar');
-  const overlay = document.getElementById('cart-overlay');
-  
-  if (!sidebar || !overlay) {
-    console.error('Cart sidebar ou overlay não encontrados');
-    return;
+function initializeEventListeners() {
+  // Botão para abrir o painel do usuário
+  const userPanelButton = document.getElementById('user-panel-button');
+  if (userPanelButton) {
+    userPanelButton.addEventListener('click', () => toggleUserPanel());
   }
-  
-  // Fecha o painel de usuário se estiver aberto
-  const userPanel = document.getElementById('user-panel');
-  const userOverlay = document.getElementById('user-panel-overlay');
-  if (userPanel && !userPanel.classList.contains('translate-x-full')) {
-    userPanel.classList.add('translate-x-full');
-    if (userOverlay) userOverlay.classList.add('hidden');
+
+  // Botão para fechar o painel do usuário
+  const userPanelCloseButton = document.getElementById('user-panel-close-button');
+  if (userPanelCloseButton) {
+    userPanelCloseButton.addEventListener('click', () => toggleUserPanel());
   }
-  
-  if (forceState === true || (forceState === undefined && sidebar.classList.contains('translate-x-full'))) {
-    // Abrir carrinho
-    sidebar.classList.remove('translate-x-full');
-    overlay.classList.remove('hidden');
-    document.body.style.overflow = 'hidden'; // Previne scroll do body
-  } else if (forceState === false || forceState === undefined) {
-    // Fechar carrinho
-    sidebar.classList.add('translate-x-full');
-    overlay.classList.add('hidden');
-    document.body.style.overflow = ''; // Restaura scroll do body
+
+  // Botão para abrir o carrinho
+  const cartButton = document.getElementById('cart-button');
+  if (cartButton) {
+    cartButton.addEventListener('click', () => toggleCart());
+  }
+
+  // Botão para fechar o carrinho
+  const cartCloseButton = document.getElementById('cart-close-button');
+  if (cartCloseButton) {
+    cartCloseButton.addEventListener('click', () => toggleCart());
+  }
+
+  // Overlay do carrinho (clicar fora fecha o painel)
+  const cartOverlay = document.getElementById('cart-overlay');
+  if (cartOverlay) {
+    cartOverlay.addEventListener('click', () => toggleCart(false));
+  }
+
+  // Overlay do painel de usuário (clicar fora fecha o painel)
+  const userPanelOverlay = document.getElementById('user-panel-overlay');
+  if (userPanelOverlay) {
+    userPanelOverlay.addEventListener('click', () => toggleUserPanel(false));
   }
 }
 
+// O objeto SIDEBARS será preenchido na função init(), após o DOM ser carregado.
+let SIDEBARS = {};
+
 /**
- * Alterna a exibição do painel de usuário (sidebar)
- * @param {boolean} forceState - Se fornecido, força o estado (true = abrir, false = fechar)
+ * Centraliza a lógica de bloqueio de rolagem da página.
+ * Bloqueia o scroll se qualquer painel estiver aberto, e libera se todos estiverem fechados.
  */
-function toggleUserPanel(forceState) {
-  const sidebar = document.getElementById('user-panel');
-  const overlay = document.getElementById('user-panel-overlay');
-  
-  if (!sidebar || !overlay) {
-    console.error('User panel ou overlay não encontrados');
+function updateBodyScroll() {
+  const isAnySidebarOpen = Object.values(SIDEBARS).some(
+    ({ sidebar }) => sidebar && !sidebar.classList.contains('translate-x-full')
+  );
+  document.body.style.overflow = isAnySidebarOpen ? 'hidden' : '';
+}
+
+/**
+ * Função genérica para abrir e fechar qualquer painel lateral.
+ * Garante que apenas um painel possa estar aberto por vez.
+ *
+ * @param {string} panelId - O ID do painel a ser manipulado (e.g., 'cart-sidebar').
+ * @param {boolean} [forceState] - Força um estado específico (true para abrir, false para fechar).
+ */
+function toggleSidebar(panelId, forceState) {
+  const target = SIDEBARS[panelId];
+  if (!target || !target.sidebar || !target.overlay) {
+    console.error(`[toggleSidebar] Painel com ID "${panelId}" não encontrado.`);
     return;
   }
-  
-  // Fecha o carrinho se estiver aberto
-  const cartSidebar = document.getElementById('cart-sidebar');
-  const cartOverlay = document.getElementById('cart-overlay');
-  if (cartSidebar && !cartSidebar.classList.contains('translate-x-full')) {
-    cartSidebar.classList.add('translate-x-full');
-    if (cartOverlay) cartOverlay.classList.add('hidden');
+
+  const isOpen = !target.sidebar.classList.contains('translate-x-full');
+  const shouldOpen = forceState === undefined ? !isOpen : forceState;
+
+  // Se a intenção é abrir um painel, primeiro fecha todos os outros.
+  if (shouldOpen) {
+    for (const id in SIDEBARS) {
+      if (id !== panelId) {
+        const otherPanel = SIDEBARS[id];
+        otherPanel.sidebar.classList.add('translate-x-full');
+        otherPanel.overlay.classList.add('hidden');
+      }
+    }
   }
-  
-  if (forceState === true || (forceState === undefined && sidebar.classList.contains('translate-x-full'))) {
-    // Abrir painel de usuário
-    sidebar.classList.remove('translate-x-full');
-    overlay.classList.remove('hidden');
-    document.body.style.overflow = 'hidden'; // Previne scroll do body
-    updateUserPanel(); // Atualiza o conteúdo do painel
-  } else if (forceState === false || forceState === undefined) {
-    // Fechar painel de usuário
-    sidebar.classList.add('translate-x-full');
-    overlay.classList.add('hidden');
-    document.body.style.overflow = ''; // Restaura scroll do body
+
+  // Abre ou fecha o painel alvo.
+  if (shouldOpen) {
+    target.sidebar.classList.remove('translate-x-full');
+    target.overlay.classList.remove('hidden');
+    // Caso especial: atualiza o conteúdo do painel de usuário ao abrir.
+    if (panelId === 'user-panel') {
+      updateUserPanel();
+    }
+  } else {
+    target.sidebar.classList.add('translate-x-full');
+    target.overlay.classList.add('hidden');
   }
+
+  // Atualiza o estado de rolagem da página no final de qualquer operação.
+  updateBodyScroll();
+}
+
+/**
+ * Wrapper para manter compatibilidade com chamadas existentes a toggleCart.
+ * @param {boolean} [forceState] - Opcional. Força o estado do painel.
+ */
+function toggleCart(forceState) {
+  toggleSidebar('cart-sidebar', forceState);
+}
+
+/**
+ * Wrapper para manter compatibilidade com chamadas existentes a toggleUserPanel.
+ * @param {boolean} [forceState] - Opcional. Força o estado do painel.
+ */
+function toggleUserPanel(forceState) {
+  toggleSidebar('user-panel', forceState);
 }
 
 /**
@@ -2658,6 +2564,7 @@ function toggleTheme() {
       lucide.createIcons();
     }
   }
+  showToast(`Tema alterado para ${newTheme === 'dark' ? 'escuro' : 'claro'}`, 'info');
 }
 
 /**
@@ -2688,57 +2595,69 @@ function toggleLogin() {
   }
 }
 
-/* ============================================ */
-/* EXPOSIÇÃO DAS FUNÇÕES NO ESCOPO GLOBAL */
-/* ============================================ */
-/*
- * IMPORTANTE: Estas linhas disponibilizam as funções principais
- * no objeto window IMEDIATAMENTE quando o script carrega.
- * 
- * Isso garante que os onclick="" no HTML funcionem corretamente,
- * pois as funções já existem no escopo global quando a página carrega.
+/**
+ * Fecha o menu mobile
  */
+function closeMobileMenu() {
+  const menu = document.getElementById('mobile-menu');
+  if (menu) {
+    menu.classList.add('hidden');
+  }
+}
 
-console.log('📦 Disponibilizando TODAS as funções no escopo global...');
+/**
+ * Processa o login do usuário
+ */
+function handleLogin(event) {
+  event.preventDefault();
+  const email = document.getElementById('login-email')?.value;
+  const password = document.getElementById('login-password')?.value;
+  
+  if (!email || !password) {
+    showToast('Por favor, preencha todos os campos', 'error');
+    return;
+  }
+  
+  // Simulate login
+  currentUser = { 
+    email, 
+    name: email.split('@')[0],
+    joined: new Date().toLocaleDateString('pt-BR'),
+    orders: [],
+    avatar: email.charAt(0).toUpperCase()
+  };
+  
+  // Save to localStorage
+  localStorage.setItem('currentUser', JSON.stringify(currentUser));
+  
+  showToast(`Bem-vindo, ${currentUser.name}!`, 'success');
+  updateUserStatus();
+  updateUserPanel();
+}
 
-// ===== FUNÇÕES DE UI - PAINÉIS E MODAIS =====
-window.toggleCart = toggleCart;
-window.toggleUserPanel = toggleUserPanel;
-window.toggleMobileMenu = toggleMobileMenu;
-window.toggleTheme = toggleTheme;
-window.toggleLogin = toggleLogin;
-window.closeMobileMenu = closeMobileMenu;
+/**
+ * Faz logout do usuário
+ */
+function handleLogout() {
+  currentUser = null;
+  localStorage.removeItem('currentUser');
+  showToast('Logout realizado com sucesso!', 'success');
+  updateUserStatus();
+  toggleUserPanel(false);
+}
 
-// ===== FUNÇÕES DE NAVEGAÇÃO E BUSCA =====
-window.navigateTo = navigateTo;
-window.handleSearch = handleSearch;
-
-// ===== FUNÇÕES DO CARRINHO (CRÍTICAS!) =====
-window.addToCart = addToCart;
-window.removeFromCart = removeFromCart;
-window.updateQuantity = updateQuantity;
-
-// ===== FUNÇÕES DE AUTENTICAÇÃO =====
-window.handleLogin = handleLogin;
-window.handleRegister = handleRegister;
-window.handleLogout = handleLogout;
-window.showRegister = showRegister;
-
-// ===== FUNÇÕES DE PRODUTOS =====
-window.closeProductModal = closeProductModal;
-window.openProductModal = openProductModal;
-window.toggleFavorite = toggleFavorite;
-window.renderProductCard = renderProductCard;
-
-// ===== FUNÇÕES DE CHECKOUT E USUÁRIO =====
-window.handleCheckout = handleCheckout;
-window.updateUserPanel = updateUserPanel;
-window.showUserOrders = showUserOrders;
-window.showUserFavorites = showUserFavorites;
-window.showUserSettings = showUserSettings;
-window.showUserAddress = showUserAddress;
-
-console.log('✅ TODAS as funções disponibilizadas no escopo global!');
+/**
+ * Processa o checkout
+ */
+function handleCheckout() {
+  if (cartItems.length === 0) {
+    showToast('Seu carrinho está vazio!', 'error');
+    return;
+  }
+  
+  navigateTo('checkout');
+  toggleCart(false);
+}
 
 /* ============================================ */
 /* INICIALIZAÇÃO DO APLICATIVO */
