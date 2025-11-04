@@ -57,6 +57,9 @@
   
   /* Raio de borda padrão */
   --radius: 0.625rem;                     /* 10px */
+
+  /* Cor primária mais escura para hover */
+  --primary-darker: #610000; /* Vermelho ainda mais escuro */
 }
 
 /* ============================================ */
@@ -66,8 +69,8 @@
 
 .dark {
   /* Cores de fundo e texto - versões escuras */
-  --background: rgb(32, 32, 32);                   /* Preto profundo */
-  --foreground: rgb(245, 245, 245);                   /* Branco suave */
+  --background: #0a0a0a;                   /* Preto profundo */
+  --foreground: #f5f5f5;                   /* Branco suave */
   
   /* Cartões e popups - versões escuras */
   --card: #1a1a1a;                        /* Cinza muito escuro */
@@ -183,8 +186,10 @@ input { font-size: 1rem; font-weight: 400; line-height: 1.5; }
 .fixed { position: fixed; }
 .sticky { position: sticky; }
 .inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
+.inset-y-0 { top: 0; bottom: 0; }
 
 /* Z-index */
+.z-30 { z-index: 30; }
 .z-40 { z-index: 40; }
 .z-50 { z-index: 50; }
 
@@ -532,12 +537,12 @@ input { font-size: 1rem; font-weight: 400; line-height: 1.5; }
 }
 
 .from-red-50 {
-  --tw-gradient-from: #260101;
+  --tw-gradient-from: #fef2f2;
   --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(254, 242, 242, 0));
 }
 
 .to-red-100 {
-  --tw-gradient-to: #590202b6;
+  --tw-gradient-to: #fee2e2;
 }
 
 .from-red-500 {
@@ -599,10 +604,12 @@ input { font-size: 1rem; font-weight: 400; line-height: 1.5; }
 .top-0 { top: 0; }
 .top-2 { top: 0.5rem; }
 .top-4 { top: 1rem; }
+.top-16 { top: 4rem; }
 .top-1\/2 { top: 50%; }
 .right-0 { right: 0; }
 .right-2 { right: 0.5rem; }
 .right-4 { right: 1rem; }
+.bottom-0 { bottom: 0; }
 .bottom-2 { bottom: 0.5rem; }
 .left-2 { left: 0.5rem; }
 .left-3 { left: 0.75rem; }
@@ -655,7 +662,14 @@ input { font-size: 1rem; font-weight: 400; line-height: 1.5; }
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   z-index: 60;
   min-width: 300px;
-  animation: slideIn 0.3s ease-out;
+  transform: translateX(100%);
+  opacity: 0;
+  transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+.toast.show {
+  transform: translateX(0);
+  opacity: 1;
 }
 
 .toast.success {
@@ -789,4 +803,100 @@ input { font-size: 1rem; font-weight: 400; line-height: 1.5; }
   .no-print {
     display: none !important;
   }
+}
+
+/* ============================================ */
+/* 30. ESTILOS PERSONALIZADOS PARA OS PAINÉIS LATERAIS */
+/* ============================================ */
+
+/* Novo estilo base para os painéis laterais */
+.sidebar-panel {
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(8px);
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
+  border-left: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.dark .sidebar-panel {
+  background-color: rgba(10, 10, 10, 0.8); /* Preto profundo com transparência */
+  border-left: 1px solid rgba(220, 38, 38, 0.2); /* Borda vermelha transparente */
+}
+
+/* Estilo base para cada item dentro de um painel lateral */
+.sidebar-item {
+  display: flex;
+  align-items: flex-start; /* Alinhado ao topo para melhor visualização */
+  gap: 1rem;
+  padding: 1.25rem 1rem; /* Mais espaçamento vertical */
+  border-bottom: 1px solid var(--border);
+  transition: background-color 0.2s ease-in-out;
+}
+
+.sidebar-item:hover {
+  background-color: var(--muted);
+}
+
+/* Imagem do produto no painel do carrinho */
+.sidebar-item-image {
+  width: 72px; /* Ligeiramente maior */
+  height: 72px;
+  object-fit: cover;
+  border-radius: 0.75rem; /* Bordas mais arredondadas */
+  border: 1px solid var(--border);
+  flex-shrink: 0; /* Prevenir que a imagem encolha */
+}
+
+/* Botões de ação dentro dos itens do painel (ex: remover, +/-) */
+.sidebar-item-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  color: var(--muted-foreground);
+  background-color: var(--accent);
+  border-radius: 9999px; /* Círculo perfeito */
+  transition: all 0.2s;
+  border: 1px solid transparent;
+}
+
+.sidebar-item-button:hover {
+  background-color: var(--accent);
+  color: var(--primary);
+}
+
+/* Rodapé do painel */
+.sidebar-footer {
+  padding: 1rem;
+  border-top: 1px solid var(--border);
+  background-color: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+.dark .sidebar-footer {
+  background-color: rgba(10, 10, 10, 0.5);
+}
+
+/* Botão de finalização de compra no rodapé do painel */
+.sidebar-footer-button {
+  width: 100%;
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+  padding: 1rem; /* Aumentado o padding para um botão mais robusto */
+  border-radius: 0.75rem; /* Bordas mais arredondadas */
+  font-weight: 700; /* Fonte mais forte */
+  text-align: center;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 4px 15px rgba(139, 0, 0, 0.2); /* Sombra sutil */
+}
+
+.sidebar-footer-button:hover {
+  background-color: var(--primary-darker);
+  transform: translateY(-2px); /* Efeito de levantar */
+  box-shadow: 0 6px 20px rgba(139, 0, 0, 0.3);
+}
+
+/* No tema escuro, o hover é ajustado */
+.dark .sidebar-footer-button:hover {
+  background-color: #b91c1c; /* Tom de vermelho mais escuro */
 }
